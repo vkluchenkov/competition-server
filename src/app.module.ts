@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { FestivalsController } from './festivals/festivals.controller';
 import { Festival } from './festivals/festival.entity';
+import { FestivalsModule } from './festivals/festivals.module';
 
 @Module({
   imports: [
@@ -17,7 +18,13 @@ import { Festival } from './festivals/festival.entity';
       database: 'dalq761g9g15v1',
       entities: [Festival],
       synchronize: true,
+      extra: {
+        ssl: {
+          rejectUnauthorized: false,
+        },
+      },
     }),
+    FestivalsModule,
   ],
 })
 export class AppModule {}

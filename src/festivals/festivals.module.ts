@@ -5,7 +5,7 @@ import { FestivalsController } from './festivals.controller';
 import { Festival } from './festival.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([FestivalsController])],
+  imports: [TypeOrmModule.forFeature([Festival])],
   providers: [FestivalsService],
   controllers: [FestivalsController],
 })
