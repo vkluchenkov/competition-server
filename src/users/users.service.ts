@@ -27,6 +27,15 @@ export class UsersService {
     });
   }
 
+  findOneByEmailAndPass(email: string, password: string): Promise<User> {
+    return this.usersRepository.findOne({
+      where: {
+        email,
+        password,
+      },
+    });
+  }
+
   findAll(): Promise<User[]> {
     return this.usersRepository.find();
   }
