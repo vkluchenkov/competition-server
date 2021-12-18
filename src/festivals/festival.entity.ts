@@ -23,5 +23,8 @@ export class Festival {
   location: string;
 
   @Column()
+  description: string;
+
+  @Column()
   img: string;
 }

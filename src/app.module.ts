@@ -5,6 +5,8 @@ import { AppService } from './app.service';
 import { FestivalsController } from './festivals/festivals.controller';
 import { Festival } from './festivals/festival.entity';
 import { FestivalsModule } from './festivals/festivals.module';
+import { UsersModule } from './users/users.module';
+import { User } from './users/user.entity';
 
 @Module({
   imports: [
@@ -16,8 +18,8 @@ import { FestivalsModule } from './festivals/festivals.module';
       password:
         'c66e5e9223890b64f9a2320499b9d3ece5273ad370c4f0110c461f214e9aa0db',
       database: 'dalq761g9g15v1',
-      entities: [Festival],
-      synchronize: true,
+      entities: [Festival, User],
+      synchronize: false,
       extra: {
         ssl: {
           rejectUnauthorized: false,
@@ -25,6 +27,7 @@ import { FestivalsModule } from './festivals/festivals.module';
       },
     }),
     FestivalsModule,
+    UsersModule,
   ],
 })
 export class AppModule {}
