@@ -1,4 +1,11 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Post,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './user.entity';
 import { CreateUserDto } from './create-user.dto';
@@ -14,6 +21,17 @@ export class UsersController {
 
   @Post()
   async create(@Body() createUserDto: CreateUserDto) {
-    console.log(createUserDto);
+    const isExists = await this.usersService.findOneByEmail(
+      createUserDto.email,
+    );
+
+    if (isExists) {
+      throw new HttpException('Conflict', HttpStatus.CONFLICT);
+    } else {
+      const newUser = new User();
+      newUser.email = createUserDto.email;
+      newUser.password = createUserDto.password;
+      await this.usersService.create(newUser);
+    }
   }
 }
