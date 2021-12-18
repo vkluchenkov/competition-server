@@ -54,7 +54,6 @@ export class UsersController {
     if (!isLogin) {
       throw new HttpException('Not found', HttpStatus.NOT_FOUND);
     }
-
-    console.log(userModelToDto(isLogin));
+    return userModelToDto(isLogin);
   }
 }
