@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Festival } from './festival.entity';
-import { Workshops } from './workshops.entity';
+import { Workshop } from './workshop.entity';
+import { Teacher } from './teacher.entity';
 
 @Injectable()
 export class FestivalsService {
@@ -10,8 +11,11 @@ export class FestivalsService {
     @InjectRepository(Festival)
     private festivalsRepository: Repository<Festival>,
 
-    @InjectRepository(Workshops)
-    private workshopsRepository: Repository<Workshops>,
+    @InjectRepository(Workshop)
+    private workshopsRepository: Repository<Workshop>,
+
+    @InjectRepository(Teacher)
+    private teachersRepository: Repository<Teacher>,
   ) {}
 
   findAll(): Promise<Festival[]> {
@@ -22,7 +26,11 @@ export class FestivalsService {
     return this.festivalsRepository.findOne(id);
   }
 
-  findWorkshopsById(festival_id: number): Promise<Workshops[]> {
+  findTeachers(): Promise<Teacher[]> {
+    return this.teachersRepository.find();
+  }
+
+  findWorkshopsByFestival(festival_id: number): Promise<Workshop[]> {
     return this.workshopsRepository.find({
       where: {
         festival_id,

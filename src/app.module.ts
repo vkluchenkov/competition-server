@@ -7,6 +7,8 @@ import { Festival } from './festivals/festival.entity';
 import { FestivalsModule } from './festivals/festivals.module';
 import { UsersModule } from './users/users.module';
 import { User } from './users/user.entity';
+import { Workshop } from './festivals/workshop.entity';
+import { Teacher } from './festivals/teacher.entity';
 
 @Module({
   imports: [
@@ -18,7 +20,7 @@ import { User } from './users/user.entity';
       password:
         'c66e5e9223890b64f9a2320499b9d3ece5273ad370c4f0110c461f214e9aa0db',
       database: 'dalq761g9g15v1',
-      entities: [Festival, User],
+      entities: [Festival, User, Workshop, Teacher],
       synchronize: false,
       extra: {
         ssl: {

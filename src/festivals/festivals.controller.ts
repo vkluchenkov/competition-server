@@ -1,8 +1,10 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { FestivalsService } from './festivals.service';
 import { Festival } from './festival.entity';
-import { Workshops } from './workshops.entity';
 import { RegisterFestivalDto } from './register-festival.dto';
+import { WorkshopDto } from './workshop.dto';
+import { Teacher } from './teacher.entity';
+import { Workshop } from './workshop.entity';
 
 @Controller('festivals')
 export class FestivalsController {
@@ -14,8 +16,25 @@ export class FestivalsController {
   }
 
   @Get(':id/workshops')
-  async findWorkshopsById(@Param() params): Promise<Workshops[]> {
-    return this.festivalsService.findWorkshopsById(params.id);
+  async findWorkshopsByFestival(@Param() params): Promise<WorkshopDto[]> {
+    const workshops = await this.festivalsService.findWorkshopsByFestival(
+      params.id,
+    );
+    const teachers = await this.festivalsService.findTeachers();
+    const teacher = (id) => teachers.find((teacher) => teacher.id === id);
+
+    const workshopModelToDto = (workshopEntity: Workshop) => {
+      return {
+        id: workshopEntity.id,
+        topic: workshopEntity.topic,
+        start: workshopEntity.start,
+        end: workshopEntity.end,
+        price: workshopEntity.price,
+        teacher: teacher(workshopEntity.teacher_id),
+      };
+    };
+
+    return workshops.map((ws) => workshopModelToDto(ws));
   }
 
   @Post('register')
