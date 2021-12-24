@@ -27,4 +27,7 @@ export class Festival {
 
   @Column()
   img: string;
+
+  @Column()
+  url_slug: string;
 }

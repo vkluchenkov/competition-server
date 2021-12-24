@@ -15,6 +15,11 @@ export class FestivalsController {
     return this.festivalsService.findAll();
   }
 
+  @Get(':url_slug')
+  async findOneByUrl(@Param() params): Promise<Festival> {
+    return this.festivalsService.findOneByUrl(params.url_slug);
+  }
+
   @Get(':id/workshops')
   async findWorkshopsByFestival(@Param() params): Promise<WorkshopDto[]> {
     const workshops = await this.festivalsService.findWorkshopsByFestival(

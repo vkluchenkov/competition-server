@@ -26,6 +26,14 @@ export class FestivalsService {
     return this.festivalsRepository.findOne(id);
   }
 
+  findOneByUrl(url_slug: string): Promise<Festival> {
+    return this.festivalsRepository.findOne({
+      where: {
+        url_slug,
+      },
+    });
+  }
+
   findTeachers(): Promise<Teacher[]> {
     return this.teachersRepository.find();
   }
