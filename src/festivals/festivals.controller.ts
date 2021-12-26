@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Param,
+  Post,
+} from '@nestjs/common';
 import { FestivalsService } from './festivals.service';
 import { Festival } from './festival.entity';
 import { RegisterFestivalDto } from './register-festival.dto';
@@ -17,7 +25,11 @@ export class FestivalsController {
 
   @Get(':url_slug')
   async findOneByUrl(@Param() params): Promise<Festival> {
-    return this.festivalsService.findOneByUrl(params.url_slug);
+    const festival = await this.festivalsService.findOneByUrl(params.url_slug);
+
+    if (!festival) {
+      throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+    } else return festival;
   }
 
   @Get(':id/workshops')
