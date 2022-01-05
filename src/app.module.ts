@@ -9,6 +9,7 @@ import { UsersModule } from './users/users.module';
 import { User } from './users/user.entity';
 import { Workshop } from './festivals/workshop.entity';
 import { Teacher } from './festivals/teacher.entity';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { Teacher } from './festivals/teacher.entity';
     }),
     FestivalsModule,
     UsersModule,
+    AuthModule,
   ],
 })
 export class AppModule {}
