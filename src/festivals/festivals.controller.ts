@@ -12,7 +12,7 @@ import { Festival } from './festival.entity';
 import { RegisterFestivalDto } from './register-festival.dto';
 import { WorkshopDto } from './workshop.dto';
 import { Teacher } from './teacher.entity';
-import { Workshop } from './workshop.entity';
+import { workshopModelToDto } from './workshopModuleToDto';
 
 @Controller('festivals')
 export class FestivalsController {
@@ -39,17 +39,6 @@ export class FestivalsController {
     );
     const teachers = await this.festivalsService.findTeachers();
     const teacher = (id) => teachers.find((teacher) => teacher.id === id);
-
-    const workshopModelToDto = (workshopEntity: Workshop) => {
-      return {
-        id: workshopEntity.id,
-        topic: workshopEntity.topic,
-        start: workshopEntity.start,
-        end: workshopEntity.end,
-        price: workshopEntity.price,
-        teacher: teacher(workshopEntity.teacher_id),
-      };
-    };
 
     return workshops.map((ws) => workshopModelToDto(ws));
   }
