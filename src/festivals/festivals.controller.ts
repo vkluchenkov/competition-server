@@ -11,7 +11,6 @@ import { FestivalsService } from './festivals.service';
 import { Festival } from './festival.entity';
 import { RegisterFestivalDto } from './register-festival.dto';
 import { WorkshopDto } from './workshop.dto';
-import { Teacher } from './teacher.entity';
 import { workshopModelToDto } from './workshopModuleToDto';
 
 @Controller('festivals')
@@ -40,7 +39,7 @@ export class FestivalsController {
     const teachers = await this.festivalsService.findTeachers();
     const teacher = (id) => teachers.find((teacher) => teacher.id === id);
 
-    return workshops.map((ws) => workshopModelToDto(ws));
+    return workshops.map((ws) => workshopModelToDto(ws, teacher));
   }
 
   @Post('register')

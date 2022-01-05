@@ -1,6 +1,6 @@
 import { Workshop } from './workshop.entity';
 
-export const workshopModelToDto = (workshopEntity: Workshop) => {
+export const workshopModelToDto = (workshopEntity: Workshop, teacher) => {
   return {
     id: workshopEntity.id,
     topic: workshopEntity.topic,
