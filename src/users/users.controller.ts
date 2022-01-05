@@ -41,7 +41,7 @@ export class UsersController {
   async findOne(@Body() loginUserDto: LoginUserDto) {
     const userModelToDto = (userEntity: User) => {
       return {
-        user_id: userEntity.user_id,
+        id: userEntity.user_id,
         email: userEntity.email,
       };
     };
