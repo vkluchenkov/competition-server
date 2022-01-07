@@ -5,13 +5,17 @@ import {
   HttpException,
   HttpStatus,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './user.entity';
 import { CreateUserDto } from './create-user.dto';
 import { LoginUserDto } from './login-user.dto';
 import { UserDto } from './user.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { LocalAuthGuard } from 'src/auth/local-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UsersController {
   constructor(private usersService: UsersService) {}
@@ -36,7 +40,6 @@ export class UsersController {
       await this.usersService.create(newUser);
     }
   }
-
   @Post('login')
   async findOne(@Body() loginUserDto: LoginUserDto) {
     const userModelToDto = (userEntity: User) => {
