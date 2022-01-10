@@ -6,13 +6,16 @@ import {
   HttpStatus,
   Param,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { FestivalsService } from './festivals.service';
 import { Festival } from './festival.entity';
 import { RegisterFestivalDto } from './register-festival.dto';
 import { WorkshopDto } from './workshop.dto';
 import { workshopModelToDto } from './workshopModuleToDto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('festivals')
 export class FestivalsController {
   constructor(private festivalsService: FestivalsService) {}
