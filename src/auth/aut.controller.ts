@@ -41,7 +41,7 @@ export class AuthController {
 
       const userDto = userModelToDto(newUser);
 
-      return await this.authService.login(userDto);
+      return await this.authService.sign(userDto);
     }
   }
 
@@ -64,6 +64,6 @@ export class AuthController {
     }
 
     const userDto = userModelToDto(isLogin);
-    return await this.authService.login(userDto);
+    return await this.authService.sign(userDto);
   }
 }
