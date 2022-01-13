@@ -11,6 +11,13 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
+  userModelToDto = (userEntity: User) => {
+    return {
+      id: userEntity.user_id,
+      email: userEntity.email,
+    };
+  };
+
   async create(user: User) {
     await this.usersRepository.save(user);
   }

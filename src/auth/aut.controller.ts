@@ -30,16 +30,10 @@ export class AuthController {
       const newUser = new User();
       newUser.email = createUserDto.email;
       newUser.password = createUserDto.password;
+
       await this.usersService.create(newUser);
 
-      const userModelToDto = (userEntity: User) => {
-        return {
-          id: userEntity.user_id,
-          email: userEntity.email,
-        };
-      };
-
-      const userDto = userModelToDto(newUser);
+      const userDto = this.usersService.userModelToDto(newUser);
 
       return await this.authService.sign(userDto);
     }
@@ -47,13 +41,6 @@ export class AuthController {
 
   @Post('login')
   async findOne(@Body() loginUserDto: LoginUserDto) {
-    const userModelToDto = (userEntity: User) => {
-      return {
-        id: userEntity.user_id,
-        email: userEntity.email,
-      };
-    };
-
     const isLogin = await this.usersService.findOneByEmailAndPass(
       loginUserDto.email,
       loginUserDto.password,
@@ -63,7 +50,7 @@ export class AuthController {
       throw new HttpException('Not found', HttpStatus.NOT_FOUND);
     }
 
-    const userDto = userModelToDto(isLogin);
+    const userDto = this.usersService.userModelToDto(isLogin);
     return await this.authService.sign(userDto);
   }
 }
