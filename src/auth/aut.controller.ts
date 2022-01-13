@@ -48,9 +48,13 @@ export class AuthController {
   @Post('login')
   async findOne(@Body() loginUserDto: LoginUserDto) {
     const user = await this.usersService.findOneByEmail(loginUserDto.email);
-    const isMatch = await bcrypt.compare(loginUserDto.password, user.password);
 
-    if (!user || !isMatch) {
+    if (!user) {
+      throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+    }
+
+    const isMatch = await bcrypt.compare(loginUserDto.password, user.password);
+    if (!isMatch) {
       throw new HttpException('Not found', HttpStatus.NOT_FOUND);
     }
 
