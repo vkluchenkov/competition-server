@@ -19,11 +19,6 @@ export class AuthController {
     private authService: AuthService,
   ) {}
 
-  passwordHash = async (password: string) => {
-    const saltOrRounds = 10;
-    return await bcrypt.hash(password, saltOrRounds);
-  };
-
   @Post()
   async create(@Body() createUserDto: CreateUserDto) {
     const isExists = await this.usersService.findOneByEmail(
@@ -35,7 +30,9 @@ export class AuthController {
     } else {
       const newUser = new User();
       newUser.email = createUserDto.email;
-      newUser.password = await this.passwordHash(createUserDto.password);
+      newUser.password = await this.authService.passwordHash(
+        createUserDto.password,
+      );
 
       await this.usersService.create(newUser);
 
