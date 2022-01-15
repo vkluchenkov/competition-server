@@ -22,7 +22,11 @@ export class UsersService {
     await this.usersRepository.save(user);
   }
 
-  findOneById(id: string): Promise<User> {
+  async update({ user_id, ...rest }: User) {
+    await this.usersRepository.update(user_id, { ...rest });
+  }
+
+  findOneById(id: number): Promise<User> {
     return this.usersRepository.findOne(id);
   }
 

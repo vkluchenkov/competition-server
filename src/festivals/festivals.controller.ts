@@ -12,7 +12,7 @@ import { FestivalsService } from './festivals.service';
 import { Festival } from './festival.entity';
 import { RegisterFestivalDto } from './register-festival.dto';
 import { WorkshopDto } from './workshop.dto';
-import { workshopModelToDto } from './workshopModuleToDto';
+import { workshopModelToDto } from './workshopModeleToDto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
