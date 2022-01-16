@@ -11,6 +11,8 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
+  incompleteSignUps = {};
+
   userModelToDto = (userEntity: User) => {
     return {
       id: userEntity.user_id,

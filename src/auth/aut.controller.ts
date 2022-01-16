@@ -11,9 +11,8 @@ import { AuthService } from 'src/auth/auth.service';
 import { User } from 'src/users/user.entity';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
-import { ResetPassReqDto } from 'src/users/reset-pass-req.dto';
-import { ResetPassCodeDto } from 'src/users/reset-pass-code.dto';
-import { SetPassDto } from 'src/users/set-pass.dto';
+import { CodeRequestDto } from 'src/users/code-request.dto';
+import { ValidateCodeDto } from 'src/users/validate-code.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -22,22 +21,44 @@ export class AuthController {
     private authService: AuthService,
   ) {}
 
-  @Post()
-  async create(@Body() req: CreateUserDto) {
-    const isExists = await this.usersService.findOneByEmail(req.email);
+  generateCode() {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+  }
 
+  @Post('signup')
+  async signup(@Body() { email }: CodeRequestDto) {
+    const isExists = await this.usersService.findOneByEmail(email);
     if (isExists) {
       throw new HttpException('Conflict', HttpStatus.CONFLICT);
     } else {
+      const code = this.generateCode();
+      this.usersService.incompleteSignUps[email] = code;
+      console.log(code);
+      return 'OK';
+    }
+  }
+
+  @Post('validate')
+  async validateCode(@Body() { email, code }: ValidateCodeDto) {
+    if (this.usersService.incompleteSignUps[email] === code) {
+      return 'OK';
+    } else {
+      throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Post('create')
+  async create(@Body() { email, password, code }: CreateUserDto) {
+    if (this.usersService.incompleteSignUps[email] === code) {
       const newUser = new User();
-      newUser.email = req.email;
-      newUser.password = await this.authService.passwordHash(req.password);
-
+      newUser.email = email;
+      newUser.password = await this.authService.passwordHash(password);
       await this.usersService.create(newUser);
-
       const userDto = this.usersService.userModelToDto(newUser);
-
+      this.usersService.incompleteSignUps[email] = '';
       return await this.authService.sign(userDto);
+    } else {
+      throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -59,12 +80,10 @@ export class AuthController {
   }
 
   @Post('reset')
-  async reset(@Body() { email }: ResetPassReqDto) {
+  async reset(@Body() { email }: CodeRequestDto) {
     const user = await this.usersService.findOneByEmail(email);
     if (user) {
-      user.password_reset = Math.floor(
-        100000 + Math.random() * 900000,
-      ).toString();
+      user.password_reset = this.generateCode();
     }
     await this.usersService.update(user);
     console.log(user.password_reset);
@@ -72,7 +91,7 @@ export class AuthController {
   }
 
   @Post('resetcheck')
-  async resetcheck(@Body() { email, code }: ResetPassCodeDto) {
+  async resetcheck(@Body() { email, code }: ValidateCodeDto) {
     const user = await this.usersService.findOneByEmail(email);
     if (user && user.password_reset === code) {
       return 'OK';
@@ -82,7 +101,7 @@ export class AuthController {
   }
 
   @Post('setpass')
-  async setpass(@Body() req: SetPassDto) {
+  async setpass(@Body() req: CreateUserDto) {
     const user = await this.usersService.findOneByEmail(req.email);
     if (user && user.password_reset === req.code) {
       user.password = await this.authService.passwordHash(req.password);
