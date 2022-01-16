@@ -68,6 +68,7 @@ export class AuthController {
     }
     await this.usersService.update(user);
     console.log(user.password_reset);
+    return 'OK';
   }
 
   @Post('resetcheck')
