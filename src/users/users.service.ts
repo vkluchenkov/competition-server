@@ -13,10 +13,16 @@ export class UsersService {
 
   incompleteSignUps = {};
 
+  generateCode() {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+  }
+
   userModelToDto = (userEntity: User) => {
     return {
       id: userEntity.user_id,
       email: userEntity.email,
+      name: userEntity.name,
+      birthDate: userEntity.birth_date,
     };
   };
 

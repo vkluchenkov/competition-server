@@ -15,4 +15,10 @@ export class User {
 
   @Column()
   password_reset: string;
+
+  @Column()
+  name: string;
+
+  @Column()
+  birth_date: string;
 }
