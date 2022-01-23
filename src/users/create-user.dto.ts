@@ -13,7 +13,7 @@ export class CreateUserDto {
   name: string;
 
   @IsNotEmpty()
-  birth_date: string;
+  birthDate: string;
 
   @IsNotEmpty()
   @MinLength(6)

@@ -45,13 +45,13 @@ export class AuthController {
 
   @Post('create')
   async create(
-    @Body() { email, password, code, name, birth_date }: CreateUserDto,
+    @Body() { email, password, code, name, birthDate }: CreateUserDto,
   ) {
     if (this.usersService.incompleteSignUps[email] === code) {
       const newUser = new User();
       newUser.email = email;
       newUser.name = name;
-      newUser.birth_date = birth_date;
+      newUser.birth_date = birthDate;
       newUser.password = await this.authService.passwordHash(password);
 
       await this.usersService.create(newUser);
