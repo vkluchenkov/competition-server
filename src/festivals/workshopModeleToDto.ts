@@ -8,5 +8,7 @@ export const workshopModelToDto = (workshopEntity: Workshop, teacher) => {
     end: workshopEntity.end,
     price: workshopEntity.price,
     teacher: teacher(workshopEntity.teacher_id),
+    limit: workshopEntity.limit,
+    counter: workshopEntity.counter,
   };
 };

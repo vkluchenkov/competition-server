@@ -7,4 +7,6 @@ export class WorkshopDto {
   end: string;
   price: number;
   teacher: TeacherDto;
+  limit: number;
+  counter: number;
 }

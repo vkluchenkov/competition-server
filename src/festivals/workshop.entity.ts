@@ -24,4 +24,10 @@ export class Workshop {
 
   @Column()
   teacher_id: string;
+
+  @Column()
+  limit: number;
+
+  @Column()
+  counter: number;
 }
