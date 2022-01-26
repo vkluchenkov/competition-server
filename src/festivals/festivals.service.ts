@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Festival } from './festival.entity';
 import { Workshop } from './workshop.entity';
 import { Teacher } from './teacher.entity';
+import { WorkshopDto } from './workshop.dto';
 
 @Injectable()
 export class FestivalsService {
@@ -22,7 +23,7 @@ export class FestivalsService {
     return this.festivalsRepository.find();
   }
 
-  findOne(id: string): Promise<Festival> {
+  findOne(id: number): Promise<Festival> {
     return this.festivalsRepository.findOne(id);
   }
 
@@ -44,6 +45,10 @@ export class FestivalsService {
         festival_id,
       },
     });
+  }
+
+  findOneWorkshop(id: number): Promise<Workshop> {
+    return this.workshopsRepository.findOne(id);
   }
 
   async remove(id: string): Promise<void> {

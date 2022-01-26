@@ -40,6 +40,15 @@ export class FestivalsController {
     } else return festival;
   }
 
+  @Get(':id/data')
+  async findOneById(@Param() params): Promise<Festival> {
+    const festival = await this.festivalsService.findOne(params.id);
+
+    if (!festival) {
+      throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+    } else return festival;
+  }
+
   @Get(':id/workshops')
   async findWorkshopsByFestival(@Param() params): Promise<WorkshopDto[]> {
     const workshops = await this.festivalsService.findWorkshopsByFestival(

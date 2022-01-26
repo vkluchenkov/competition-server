@@ -19,11 +19,12 @@ export class OrdersController {
   constructor(private ordersService: OrdersService) {}
 
   @Get(':order_id')
-  async findOne(@Param() params): Promise<Partial<Order>> {
+  async findOne(@Param() params) {
     const order = await this.ordersService.findOne(params.id);
 
     if (!order) {
       throw new HttpException('Not found', HttpStatus.NOT_FOUND);
-    } else return this.ordersService.orderModelToDto(order);
+    }
+    return await this.ordersService.orderModelToDto(order);
   }
 }

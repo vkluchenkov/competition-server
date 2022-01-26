@@ -8,7 +8,7 @@ export class Registration {
   id: number;
 
   @Column()
-  is_fullpass: boolean;
+  is_fullPass: boolean;
 
   @Column({
     type: 'jsonb',
@@ -16,13 +16,13 @@ export class Registration {
     default: () => "'[]'",
     nullable: false,
   })
-  workshops: Array<{ workshop_id: number }>;
+  workshops: Array<number>;
 
   @Column()
   status: string;
 
   @Column()
-  festival_id: string;
+  festival_id: number;
 
   @Column()
   user_id: number;

@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { type } from 'os';
+import { Festival } from 'src/festivals/festival.entity';
+import { FestivalsService } from 'src/festivals/festivals.service';
 import { Repository } from 'typeorm';
 import { CreateOrderDto } from './create-order.dto';
+import { OrderDto } from './order.dto';
 import { Order } from './order.entity';
 
 @Injectable()
@@ -9,12 +13,37 @@ export class OrdersService {
   constructor(
     @InjectRepository(Order)
     private ordersRepository: Repository<Order>,
+
+    private festivalsService: FestivalsService,
   ) {}
 
-  orderModelToDto = ({ user_id, ...rest }: Order): Partial<Order> => {
-    return {
-      ...rest,
-    };
+  orderModelToDto = async ({
+    user_id,
+    content,
+    ...rest
+  }: Order): Promise<OrderDto> => {
+    const festivals = await Promise.all(
+      content.map(async (item) => {
+        const festival = await this.festivalsService.findOne(item.festival_id);
+
+        const festivalWorkshops =
+          await this.festivalsService.findWorkshopsByFestival(item.festival_id);
+
+        const filteredWs = festivalWorkshops.filter((ws) =>
+          item.workshops.includes(ws.id),
+        );
+
+        const isFullPass = item.is_fullPass;
+
+        return {
+          festival,
+          isFullPass,
+          workshops: filteredWs,
+        };
+      }),
+    );
+
+    return { ...rest, festivals };
   };
 
   findAll(): Promise<Order[]> {

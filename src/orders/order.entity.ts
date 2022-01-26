@@ -12,7 +12,7 @@ import { Registration } from 'src/registrations/registration.entity';
 })
 export class Order {
   @PrimaryGeneratedColumn()
-  id: string;
+  id: number;
 
   @Column({
     type: 'jsonb',
@@ -29,13 +29,13 @@ export class Order {
   updated_at!: Date;
 
   @Column()
-  paid_at: string;
+  paid_at: Date;
 
   @Column()
   refunded_amount: number;
 
   @Column()
-  refunded_at: string;
+  refunded_at: Date;
 
   @Column()
   user_id: string;
