@@ -1,4 +1,5 @@
 export class RegisterFestivalDto {
+  festival_id: string;
   isFullPass: boolean;
-  workshops?: number[];
+  workshops?: Array<{ workshop_id: number }>;
 }

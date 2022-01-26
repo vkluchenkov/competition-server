@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { FestivalsService } from './festivals.service';
@@ -14,11 +15,16 @@ import { RegisterFestivalDto } from './register-festival.dto';
 import { WorkshopDto } from './workshop.dto';
 import { workshopModelToDto } from './workshopModeleToDto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { OrdersService } from 'src/orders/orders.service';
+import { Order } from 'src/orders/order.entity';
 
 @UseGuards(JwtAuthGuard)
 @Controller('festivals')
 export class FestivalsController {
-  constructor(private festivalsService: FestivalsService) {}
+  constructor(
+    private festivalsService: FestivalsService,
+    private ordersService: OrdersService,
+  ) {}
 
   @Get()
   async findAll(): Promise<Festival[]> {
@@ -46,5 +52,21 @@ export class FestivalsController {
   }
 
   @Post('register')
-  async register(@Body() registerFestivalDto: RegisterFestivalDto) {}
+  async register(
+    @Body() { workshops, isFullPass, festival_id }: RegisterFestivalDto,
+    @Req() req,
+  ) {
+    const registrationDtoToModel = {
+      content: {
+        workshops,
+        is_fullPass: isFullPass,
+        festival_id,
+      },
+      user_id: req.user.id,
+    };
+
+    return this.ordersService.orderModelToDto(
+      await this.ordersService.register(registrationDtoToModel),
+    );
+  }
 }
