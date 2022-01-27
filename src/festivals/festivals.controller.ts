@@ -62,14 +62,14 @@ export class FestivalsController {
 
   @Post('register')
   async register(
-    @Body() { workshops, isFullPass, festival_id }: RegisterFestivalDto,
+    @Body() { workshops, isFullPass, festivalId }: RegisterFestivalDto,
     @Req() req,
   ) {
     const registrationDtoToModel = {
       content: {
         workshops,
         is_fullPass: isFullPass,
-        festival_id,
+        festival_id: festivalId,
       },
       user_id: req.user.id,
     };
