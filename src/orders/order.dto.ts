@@ -1,10 +1,10 @@
 import { Festival } from 'src/festivals/festival.entity';
-import { Workshop } from 'src/festivals/workshop.entity';
+import { WorkshopDto } from 'src/festivals/workshop.dto';
 
 interface DtoFestival {
   festival: Festival;
   isFullPass: boolean;
-  workshops: Workshop[];
+  workshops: WorkshopDto[];
 }
 
 export class OrderDto {

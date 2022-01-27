@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { type } from 'os';
 import { Festival } from 'src/festivals/festival.entity';
 import { FestivalsService } from 'src/festivals/festivals.service';
+import { workshopModelToDto } from 'src/festivals/workshopModeleToDto';
 import { Repository } from 'typeorm';
 import { CreateOrderDto } from './create-order.dto';
 import { OrderDto } from './order.dto';
@@ -33,12 +34,19 @@ export class OrdersService {
           item.workshops.includes(ws.id),
         );
 
+        const teachers = await this.festivalsService.findTeachers();
+        const teacher = (id) => teachers.find((teacher) => teacher.id === id);
+
+        const wsWithTeachers = filteredWs.map((ws) =>
+          workshopModelToDto(ws, teacher),
+        );
+
         const isFullPass = item.is_fullPass;
 
         return {
           festival,
           isFullPass,
-          workshops: filteredWs,
+          workshops: wsWithTeachers,
         };
       }),
     );

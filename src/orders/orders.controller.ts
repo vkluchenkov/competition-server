@@ -18,7 +18,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 export class OrdersController {
   constructor(private ordersService: OrdersService) {}
 
-  @Get(':order_id')
+  @Get(':id')
   async findOne(@Param() params) {
     const order = await this.ordersService.findOne(params.id);
 
