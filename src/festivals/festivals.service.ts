@@ -4,7 +4,6 @@ import { Repository } from 'typeorm';
 import { Festival } from './festival.entity';
 import { Workshop } from './workshop.entity';
 import { Teacher } from './teacher.entity';
-import { WorkshopDto } from './workshop.dto';
 
 @Injectable()
 export class FestivalsService {

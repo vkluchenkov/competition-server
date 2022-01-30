@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { type } from 'os';
-import { Festival } from 'src/festivals/festival.entity';
 import { FestivalsService } from 'src/festivals/festivals.service';
 import { workshopModelToDto } from 'src/festivals/workshopModeleToDto';
 import { Repository } from 'typeorm';
