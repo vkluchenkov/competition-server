@@ -88,11 +88,11 @@ export class OrdersService {
     if (isOrder) {
       const orderId = isOrder.id;
       const orderContent = isOrder.content.slice();
+      const index = orderContent.findIndex(
+        (c) => c.festival_id === content.festival_id,
+      );
 
-      if (orderContent.find((c) => c.festival_id === content.festival_id)) {
-        const index = orderContent.findIndex(
-          (c) => c.festival_id === content.festival_id,
-        );
+      if (index >= 0) {
         orderContent.splice(index, 1, content);
       } else {
         orderContent.push(content);

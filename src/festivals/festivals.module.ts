@@ -9,12 +9,7 @@ import { Order } from 'src/orders/order.entity';
 import { OrdersService } from 'src/orders/orders.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Festival]),
-    TypeOrmModule.forFeature([Workshop]),
-    TypeOrmModule.forFeature([Teacher]),
-    TypeOrmModule.forFeature([Order]),
-  ],
+  imports: [TypeOrmModule.forFeature([Festival, Workshop, Teacher, Order])],
   providers: [FestivalsService, OrdersService],
   controllers: [FestivalsController],
 })

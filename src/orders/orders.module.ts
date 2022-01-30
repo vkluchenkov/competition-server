@@ -9,12 +9,7 @@ import { OrdersController } from './orders.controller';
 import { OrdersService } from './orders.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Order]),
-    TypeOrmModule.forFeature([Festival]),
-    TypeOrmModule.forFeature([Workshop]),
-    TypeOrmModule.forFeature([Teacher]),
-  ],
+  imports: [TypeOrmModule.forFeature([Order, Festival, Workshop, Teacher])],
   providers: [OrdersService, FestivalsService],
   controllers: [OrdersController],
 })
