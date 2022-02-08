@@ -1,7 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({
-  name: 'registration',
+  name: 'registrations',
 })
 export class Registration {
   @PrimaryGeneratedColumn()
@@ -10,6 +10,9 @@ export class Registration {
   @Column()
   is_fullPass: boolean;
 
+  @Column()
+  is_soloPass: boolean;
+
   @Column({
     type: 'jsonb',
     array: true,
@@ -17,6 +20,14 @@ export class Registration {
     nullable: false,
   })
   workshops: Array<number>;
+
+  @Column({
+    type: 'jsonb',
+    array: true,
+    default: () => "'[]'",
+    nullable: false,
+  })
+  contest: Array<number>;
 
   @Column()
   status: string;
