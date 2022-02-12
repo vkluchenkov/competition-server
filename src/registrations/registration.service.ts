@@ -19,11 +19,11 @@ export class RegistrationsService {
     return this.RegistrationsRepository.findOne(id);
   }
 
-  findOneByFestival({ user_id, festival_id }): Promise<Registration> {
+  findOneByFestival({ userId, festivalId }): Promise<Registration> {
     return this.RegistrationsRepository.findOne({
       where: {
-        user_id,
-        festival_id,
+        userId,
+        festivalId,
       },
     });
   }

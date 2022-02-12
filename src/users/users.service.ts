@@ -17,21 +17,16 @@ export class UsersService {
     return Math.floor(100000 + Math.random() * 900000).toString();
   }
 
-  userModelToDto = (userEntity: User) => {
-    return {
-      id: userEntity.user_id,
-      email: userEntity.email,
-      name: userEntity.name,
-      birthDate: userEntity.birth_date,
-    };
+  userModelToDto = ({ password, passwordReset, ...rest }: User) => {
+    return { ...rest };
   };
 
   async create(user: User) {
     await this.usersRepository.save(user);
   }
 
-  async update({ user_id, ...rest }: User) {
-    await this.usersRepository.update(user_id, { ...rest });
+  async update({ userId, ...rest }: User) {
+    await this.usersRepository.update(userId, { ...rest });
   }
 
   findOneById(id: number): Promise<User> {

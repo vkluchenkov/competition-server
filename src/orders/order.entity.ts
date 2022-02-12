@@ -25,21 +25,21 @@ export class Order {
   @Column()
   status: string;
 
-  @UpdateDateColumn({ type: 'timestamp' })
-  updated_at!: Date;
+  @UpdateDateColumn({ type: 'timestamp', name: 'updated_at' })
+  updatedAt!: Date;
 
-  @Column()
-  paid_at: Date;
+  @Column({ name: 'paid_at' })
+  paidAt: Date;
 
-  @Column()
-  refunded_amount: number;
+  @Column({ name: 'refunded_amount' })
+  refundedAmount: number;
 
-  @Column()
-  refunded_at: Date;
+  @Column({ name: 'refunded_at' })
+  refundedAt: Date;
 
-  @Column()
-  user_id: string;
+  @Column({ name: 'user_id' })
+  userId: string;
 
-  @CreateDateColumn({ default: () => 'NOW()' })
-  created_at: Date;
+  @CreateDateColumn({ name: 'created_at', default: () => 'NOW()' })
+  createdAt: Date;
 }

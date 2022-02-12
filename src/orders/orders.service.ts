@@ -17,16 +17,16 @@ export class OrdersService {
   ) {}
 
   orderModelToDto = async ({
-    user_id,
-    content,
+    userId,
+    content: newContent,
     ...rest
   }: Order): Promise<OrderDto> => {
     const festivals = await Promise.all(
-      content.map(async (item) => {
-        const festival = await this.festivalsService.findOne(item.festival_id);
+      newContent.map(async (item) => {
+        const festival = await this.festivalsService.findOne(item.festivalId);
 
         const festivalWorkshops =
-          await this.festivalsService.findWorkshopsByFestival(item.festival_id);
+          await this.festivalsService.findWorkshopsByFestival(item.festivalId);
 
         const filteredWs = festivalWorkshops.filter((ws) =>
           item.workshops.includes(ws.id),
@@ -39,7 +39,7 @@ export class OrdersService {
           workshopModelToDto(ws, teacher),
         );
 
-        const isFullPass = item.is_fullPass;
+        const isFullPass = item.isFullPass;
 
         return {
           festival,
@@ -60,10 +60,10 @@ export class OrdersService {
     return this.ordersRepository.findOne(id);
   }
 
-  findOneByUser(user_id: string): Promise<Order> {
+  findOneByUser(userId: string): Promise<Order> {
     return this.ordersRepository.findOne({
       where: {
-        user_id,
+        userId,
       },
     });
   }
@@ -80,20 +80,20 @@ export class OrdersService {
     await this.ordersRepository.delete(id);
   }
 
-  async register({ content, user_id }): Promise<Order> {
-    const isOrder = await this.findOneByUser(user_id);
+  async register({ newContent, userId }): Promise<Order> {
+    const isOrder = await this.findOneByUser(userId);
 
     if (isOrder) {
       const orderId = isOrder.id;
       const orderContent = isOrder.content.slice();
       const index = orderContent.findIndex(
-        (c) => c.festival_id === content.festival_id,
+        (c) => c.festivalId === newContent.festivalId,
       );
 
       if (index >= 0) {
-        orderContent.splice(index, 1, content);
+        orderContent.splice(index, 1, newContent);
       } else {
-        orderContent.push(content);
+        orderContent.push(newContent);
       }
 
       return await this.ordersRepository.save({
@@ -102,9 +102,9 @@ export class OrdersService {
       });
     } else {
       return await this.ordersRepository.save({
-        content: [content],
+        content: [newContent],
         status: 'new',
-        user_id: user_id,
+        userId,
       });
     }
   }

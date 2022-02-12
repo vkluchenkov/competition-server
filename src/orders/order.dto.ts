@@ -10,10 +10,10 @@ interface DtoFestival {
 export class OrderDto {
   id: number;
   status: string;
-  updated_at: Date | null;
-  paid_at: Date | null;
-  refunded_amount: number | null;
-  refunded_at: Date | null;
-  created_at: Date | null;
+  updatedAt: Date | null;
+  paidAt: Date | null;
+  refundedAmount: number | null;
+  refundedAt: Date | null;
+  createdAt: Date | null;
   festivals: DtoFestival[];
 }

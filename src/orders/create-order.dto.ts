@@ -1,10 +1,10 @@
 import { Registration } from 'src/registrations/registration.entity';
 
 export class CreateOrderDto {
-  user_id: string;
+  userId: string;
   content: Partial<Registration>[];
   status: string;
-  paid_at?: string;
-  refunded_amount?: number;
-  refunded_at?: string;
+  paidAt?: string;
+  refundedAmount?: number;
+  refundedAt?: string;
 }

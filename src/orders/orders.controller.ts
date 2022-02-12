@@ -1,17 +1,13 @@
 import {
-  Body,
   Controller,
   Get,
   HttpException,
   HttpStatus,
   Param,
-  Post,
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { Order } from './order.entity';
 import { OrdersService } from './orders.service';
-
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { OrderDto } from './order.dto';
 
@@ -32,11 +28,10 @@ export class OrdersController {
 
   @Get()
   async findOneByUser(@Req() req): Promise<OrderDto> {
-    const isOrder = await this.ordersService.findOneByUser(req.user.id);
+    const isOrder = await this.ordersService.findOneByUser(req.user.userId);
     if (!isOrder) {
       throw new HttpException('Not found', HttpStatus.NOT_FOUND);
-    } else {
-      return this.ordersService.orderModelToDto(isOrder);
     }
+    return this.ordersService.orderModelToDto(isOrder);
   }
 }
