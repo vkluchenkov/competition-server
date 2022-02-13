@@ -29,6 +29,7 @@ export class OrdersController {
   @Get()
   async findOneByUser(@Req() req): Promise<OrderDto> {
     const isOrder = await this.ordersService.findOneByUser(req.user.userId);
+    console.log(isOrder);
     if (!isOrder) {
       throw new HttpException('Not found', HttpStatus.NOT_FOUND);
     }

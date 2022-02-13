@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Festival } from './festival.entity';
 import { Workshop } from './workshop.entity';
 import { Teacher } from './teacher.entity';
+import { ContestCategories } from 'src/festivals/contestCategories.entity';
 
 @Injectable()
 export class FestivalsService {
@@ -16,6 +17,9 @@ export class FestivalsService {
 
     @InjectRepository(Teacher)
     private teachersRepository: Repository<Teacher>,
+
+    @InjectRepository(Teacher)
+    private contestCatsRepository: Repository<ContestCategories>,
   ) {}
 
   findAll(): Promise<Festival[]> {
@@ -40,6 +44,14 @@ export class FestivalsService {
 
   findWorkshopsByFestival(festivalId: number): Promise<Workshop[]> {
     return this.workshopsRepository.find({
+      where: {
+        festivalId,
+      },
+    });
+  }
+
+  findContestCatsByFestival(festivalId: number): Promise<ContestCategories[]> {
+    return this.contestCatsRepository.find({
       where: {
         festivalId,
       },

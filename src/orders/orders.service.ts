@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ContestCategories } from 'src/festivals/contestCategories.entity';
 import { FestivalsService } from 'src/festivals/festivals.service';
-import { workshopModelToDto } from 'src/festivals/workshopModeleToDto';
+import { workshopModelToDto } from 'src/festivals/workshopModelToDto';
 import { Repository } from 'typeorm';
 import { CreateOrderDto } from './create-order.dto';
 import { OrderDto } from './order.dto';
@@ -12,17 +13,16 @@ export class OrdersService {
   constructor(
     @InjectRepository(Order)
     private ordersRepository: Repository<Order>,
-
     private festivalsService: FestivalsService,
   ) {}
 
   orderModelToDto = async ({
     userId,
-    content: newContent,
+    content,
     ...rest
   }: Order): Promise<OrderDto> => {
     const festivals = await Promise.all(
-      newContent.map(async (item) => {
+      content.map(async (item) => {
         const festival = await this.festivalsService.findOne(item.festivalId);
 
         const festivalWorkshops =
@@ -30,6 +30,15 @@ export class OrdersService {
 
         const filteredWs = festivalWorkshops.filter((ws) =>
           item.workshops.includes(ws.id),
+        );
+
+        const festivalContestCats =
+          await this.festivalsService.findContestCatsByFestival(
+            item.festivalId,
+          );
+
+        const filteredContestCats = festivalContestCats.filter((category) =>
+          item.contest.includes(category.id),
         );
 
         const teachers = await this.festivalsService.findTeachers();
@@ -45,6 +54,7 @@ export class OrdersService {
           festival,
           isFullPass,
           workshops: wsWithTeachers,
+          contest: filteredContestCats,
         };
       }),
     );

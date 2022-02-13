@@ -13,11 +13,12 @@ import { FestivalsService } from './festivals.service';
 import { Festival } from './festival.entity';
 import { OrderFestivalDto } from './order-festival.dto';
 import { WorkshopDto } from './workshop.dto';
-import { workshopModelToDto } from './workshopModeleToDto';
+import { workshopModelToDto } from './workshopModelToDto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { OrdersService } from 'src/orders/orders.service';
 import { RegistrationsService } from 'src/registrations/registration.service';
 import { Registration } from 'src/registrations/registration.entity';
+import { ContestCategories } from 'src/festivals/contestCategories.entity';
 
 @UseGuards(JwtAuthGuard)
 @Controller('festivals')
@@ -62,6 +63,13 @@ export class FestivalsController {
     const teacher = (id) => teachers.find((teacher) => teacher.id === id);
 
     return workshops.map((ws) => workshopModelToDto(ws, teacher));
+  }
+
+  @Get(':id/contest')
+  async findContestCatsByFestival(
+    @Param() params,
+  ): Promise<ContestCategories[]> {
+    return await this.festivalsService.findContestCatsByFestival(params.id);
   }
 
   @Post('register')
