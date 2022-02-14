@@ -18,7 +18,7 @@ export class FestivalsService {
     @InjectRepository(Teacher)
     private teachersRepository: Repository<Teacher>,
 
-    @InjectRepository(Teacher)
+    @InjectRepository(ContestCategories)
     private contestCatsRepository: Repository<ContestCategories>,
   ) {}
 
