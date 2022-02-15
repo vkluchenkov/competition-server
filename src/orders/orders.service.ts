@@ -35,18 +35,22 @@ export class OrdersService {
         const festivalWorkshops =
           await this.festivalsService.findWorkshopsByFestival(item.festivalId);
 
-        const filteredWs = festivalWorkshops.filter((ws) =>
-          item.workshops.includes(ws.id),
-        );
+        const filteredWs = festivalWorkshops.filter((ws) => {
+          if (item.workshops) {
+            return item.workshops.includes(ws.id);
+          }
+        });
 
         const festivalContestCats =
           await this.festivalsService.findContestCatsByFestival(
             item.festivalId,
           );
 
-        const filteredContestCats = festivalContestCats.filter((category) =>
-          item.contest.includes(category.id),
-        );
+        const filteredContestCats = festivalContestCats.filter((category) => {
+          if (item.contest) {
+            item.contest.includes(category.id);
+          }
+        });
 
         const teachers = await this.festivalsService.findTeachers();
         const teacher = (id) => teachers.find((teacher) => teacher.id === id);
@@ -137,6 +141,12 @@ export class OrdersService {
       isRegistration().then((res) => {
         if (res) {
           this.registrationsService.remove(res.id);
+        }
+        if (!festival.workshops) {
+          festival.workshops = [];
+        }
+        if (!festival.contest) {
+          festival.contest = [];
         }
         this.registrationsService.create({
           isFullPass: festival.isFullPass,
