@@ -38,7 +38,7 @@ export class Order {
   refundedAt: Date;
 
   @Column({ name: 'user_id' })
-  userId: string;
+  userId: number;
 
   @CreateDateColumn({ name: 'created_at', default: () => 'NOW()' })
   createdAt: Date;

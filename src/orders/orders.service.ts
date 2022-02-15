@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ContestCategories } from 'src/festivals/contestCategories.entity';
 import { FestivalsService } from 'src/festivals/festivals.service';
 import { workshopModelToDto } from 'src/festivals/workshopModelToDto';
+import { Registration } from 'src/registrations/registration.entity';
+import { RegistrationsService } from 'src/registrations/registration.service';
 import { Repository } from 'typeorm';
 import { CreateOrderDto } from './create-order.dto';
 import { OrderDto } from './order.dto';
@@ -13,7 +14,13 @@ export class OrdersService {
   constructor(
     @InjectRepository(Order)
     private ordersRepository: Repository<Order>,
+
+    @InjectRepository(Registration)
+    private registrationsRepository: Repository<Registration>,
+
     private festivalsService: FestivalsService,
+
+    private registrationsService: RegistrationsService,
   ) {}
 
   orderModelToDto = async ({
@@ -66,11 +73,11 @@ export class OrdersService {
     return this.ordersRepository.find();
   }
 
-  findOne(id: string): Promise<Order> {
+  findOne(id: number): Promise<Order> {
     return this.ordersRepository.findOne(id);
   }
 
-  findOneByUser(userId: string): Promise<Order> {
+  findOneByUser(userId: number): Promise<Order> {
     return this.ordersRepository.findOne({
       where: {
         userId,
@@ -82,9 +89,9 @@ export class OrdersService {
     return await this.ordersRepository.save(order);
   }
 
-  async update({ id, ...rest }: Partial<Order>) {
-    return await this.ordersRepository.update(id, { ...rest });
-  }
+  // async update({ id, ...rest }: Partial<Order>) {
+  //   return await this.ordersRepository.update(id, { ...rest });
+  // }
 
   async remove(id: string): Promise<void> {
     await this.ordersRepository.delete(id);
@@ -117,5 +124,40 @@ export class OrdersService {
         userId,
       });
     }
+  }
+
+  async pay(order: Order): Promise<Order> {
+    await order.content.forEach((festival) => {
+      const isRegistration = () =>
+        this.registrationsService.findOneByFestival({
+          userId: order.userId,
+          festivalId: festival.festivalId,
+        });
+
+      isRegistration().then((res) => {
+        if (res) {
+          this.registrationsService.remove(res.id);
+        }
+        this.registrationsService.create({
+          isFullPass: festival.isFullPass,
+          isSoloPass: festival.isSoloPass,
+          workshops: festival.workshops,
+          contest: festival.contest,
+          status: 'paid',
+          festivalId: festival.festivalId,
+          userId: order.userId,
+        });
+      });
+    });
+
+    const paidTime = new Date().toISOString();
+
+    this.ordersRepository.save({
+      id: order.id,
+      status: 'paid',
+      paidAt: paidTime,
+    });
+
+    return this.findOne(order.id);
   }
 }

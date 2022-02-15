@@ -1,7 +1,7 @@
 import { Registration } from 'src/registrations/registration.entity';
 
 export class CreateOrderDto {
-  userId: string;
+  userId: number;
   content: Partial<Registration>[];
   status: string;
   paidAt?: string;

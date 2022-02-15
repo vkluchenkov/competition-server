@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { CreateRegistrationDto } from './create-registration.dto';
 
 import { Registration } from './registration.entity';
 
@@ -8,19 +9,19 @@ import { Registration } from './registration.entity';
 export class RegistrationsService {
   constructor(
     @InjectRepository(Registration)
-    private RegistrationsRepository: Repository<Registration>,
+    private registrationsRepository: Repository<Registration>,
   ) {}
 
   findAll(): Promise<Registration[]> {
-    return this.RegistrationsRepository.find();
+    return this.registrationsRepository.find();
   }
 
   findOne(id: number): Promise<Registration> {
-    return this.RegistrationsRepository.findOne(id);
+    return this.registrationsRepository.findOne(id);
   }
 
   findOneByFestival({ userId, festivalId }): Promise<Registration> {
-    return this.RegistrationsRepository.findOne({
+    return this.registrationsRepository.findOne({
       where: {
         userId,
         festivalId,
@@ -28,7 +29,11 @@ export class RegistrationsService {
     });
   }
 
-  async remove(id: string): Promise<void> {
-    await this.RegistrationsRepository.delete(id);
+  async create(registration: CreateRegistrationDto) {
+    return await this.registrationsRepository.save(registration);
+  }
+
+  async remove(id: number): Promise<void> {
+    await this.registrationsRepository.delete(id);
   }
 }
