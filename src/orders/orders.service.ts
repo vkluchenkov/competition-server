@@ -60,10 +60,12 @@ export class OrdersService {
         );
 
         const isFullPass = item.isFullPass;
+        const isSoloPass = item.isSoloPass;
 
         return {
           festival,
           isFullPass,
+          isSoloPass,
           workshops: wsWithTeachers,
           contest: filteredContestCats,
         };
@@ -101,20 +103,50 @@ export class OrdersService {
     await this.ordersRepository.delete(id);
   }
 
-  async register({ newContent, userId }): Promise<Order> {
+  async register({ contentPayload, userId }): Promise<Order> {
     const isOrder = await this.findOneByUser(userId);
 
     if (isOrder) {
       const orderId = isOrder.id;
       const orderContent = isOrder.content.slice();
       const index = orderContent.findIndex(
-        (c) => c.festivalId === newContent.festivalId,
+        (c) => c.festivalId === contentPayload.festivalId,
       );
 
+      const newContent = () => {
+        const workshops = () => {
+          if (contentPayload.workshops && contentPayload.workshops.length > 0) {
+            return contentPayload.workshops;
+          }
+          if (index >= 0) {
+            return orderContent[index].workshops;
+          }
+          return [];
+        };
+
+        const contest = () => {
+          if (contentPayload.contest && contentPayload.contest.length > 0) {
+            return contentPayload.contest;
+          }
+          if (index >= 0) {
+            return orderContent[index].contest;
+          }
+          return [];
+        };
+
+        return {
+          workshops: workshops(),
+          contest: contest(),
+          isFullPass: contentPayload.isFullPass ? true : false,
+          isSoloPass: contentPayload.isSoloPass ? true : false,
+          festivalId: contentPayload.festivalId,
+        };
+      };
+
       if (index >= 0) {
-        orderContent.splice(index, 1, newContent);
+        orderContent.splice(index, 1, newContent());
       } else {
-        orderContent.push(newContent);
+        orderContent.push(newContent());
       }
 
       return await this.ordersRepository.save({
@@ -122,8 +154,28 @@ export class OrdersService {
         content: orderContent,
       });
     } else {
+      const newContent = () => {
+        const workshops =
+          contentPayload.workshops && contentPayload.workshops.length > 0
+            ? contentPayload.workshops
+            : [];
+
+        const contest =
+          contentPayload.contest && contentPayload.contest.length > 0
+            ? contentPayload.contest
+            : [];
+
+        return {
+          workshops,
+          contest,
+          isFullPass: contentPayload.isFullPass ? true : false,
+          isSoloPass: contentPayload.isSoloPass ? true : false,
+          festivalId: contentPayload.festivalId,
+        };
+      };
+
       return await this.ordersRepository.save({
-        content: [newContent],
+        content: [newContent()],
         status: 'new',
         userId,
       });

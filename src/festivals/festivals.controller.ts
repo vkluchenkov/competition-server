@@ -74,13 +74,11 @@ export class FestivalsController {
 
   @Post('register')
   async register(@Body() body: OrderFestivalDto, @Req() req) {
-    const orderDtoToModel = {
-      newContent: body,
-      userId: req.user.userId,
-    };
-
     return this.ordersService.orderModelToDto(
-      await this.ordersService.register(orderDtoToModel),
+      await this.ordersService.register({
+        contentPayload: body,
+        userId: req.user.userId,
+      }),
     );
   }
 

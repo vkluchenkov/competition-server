@@ -5,6 +5,7 @@ import { WorkshopDto } from 'src/festivals/workshop.dto';
 interface DtoFestival {
   festival: Festival;
   isFullPass: boolean;
+  isSoloPass: boolean;
   workshops: WorkshopDto[];
   contest: ContestCategories[];
 }
