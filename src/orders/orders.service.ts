@@ -48,7 +48,7 @@ export class OrdersService {
 
         const filteredContestCats = festivalContestCats.filter((category) => {
           if (item.contest) {
-            item.contest.includes(category.id);
+            return item.contest.includes(category.id);
           }
         });
 
