@@ -19,6 +19,7 @@ import { OrdersService } from 'src/orders/orders.service';
 import { RegistrationsService } from 'src/registrations/registration.service';
 import { Registration } from 'src/registrations/registration.entity';
 import { ContestCategories } from 'src/festivals/contestCategories.entity';
+import { RegistrationDto } from 'src/registrations/registration.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('festivals')
@@ -83,7 +84,10 @@ export class FestivalsController {
   }
 
   @Get(':id/registration')
-  async findOneByFestival(@Param() params, @Req() req): Promise<Registration> {
+  async findOneByFestival(
+    @Param() params,
+    @Req() req,
+  ): Promise<RegistrationDto> {
     const registration = await this.registrationsService.findOneByFestival({
       userId: req.user.userId,
       festivalId: params.id,
@@ -92,6 +96,6 @@ export class FestivalsController {
     if (!registration) {
       throw new HttpException('Not found', HttpStatus.NOT_FOUND);
     }
-    return registration;
+    return this.registrationsService.registrationModelToDto(registration);
   }
 }

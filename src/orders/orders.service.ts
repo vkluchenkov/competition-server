@@ -87,6 +87,7 @@ export class OrdersService {
     return this.ordersRepository.findOne({
       where: {
         userId,
+        status: 'new',
       },
     });
   }
@@ -95,10 +96,6 @@ export class OrdersService {
     return await this.ordersRepository.save(order);
   }
 
-  // async update({ id, ...rest }: Partial<Order>) {
-  //   return await this.ordersRepository.update(id, { ...rest });
-  // }
-
   async remove(id: string): Promise<void> {
     await this.ordersRepository.delete(id);
   }
@@ -106,7 +103,7 @@ export class OrdersService {
   async register({ contentPayload, userId }): Promise<Order> {
     const isOrder = await this.findOneByUser(userId);
 
-    if (isOrder) {
+    if (isOrder && isOrder.status != 'paid') {
       const orderId = isOrder.id;
       const orderContent = isOrder.content.slice();
       const index = orderContent.findIndex(

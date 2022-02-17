@@ -2,7 +2,7 @@ import { ContestCategories } from 'src/festivals/contestCategories.entity';
 import { Festival } from 'src/festivals/festival.entity';
 import { WorkshopDto } from 'src/festivals/workshop.dto';
 
-interface DtoFestival {
+export interface DtoFestival {
   festival: Festival;
   isFullPass: boolean;
   isSoloPass: boolean;
