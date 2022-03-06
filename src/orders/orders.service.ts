@@ -211,7 +211,7 @@ export class OrdersService {
 
     const paidTime = new Date().toISOString();
 
-    this.ordersRepository.save({
+    await this.ordersRepository.save({
       id: order.id,
       status: 'paid',
       paidAt: paidTime,
