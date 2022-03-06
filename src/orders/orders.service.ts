@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FestivalsService } from 'src/festivals/festivals.service';
-import { workshopModelToDto } from 'src/festivals/workshopModeleToDto';
+import { workshopModelToDto } from 'src/festivals/workshopModelToDto';
+import { Registration } from 'src/registrations/registration.entity';
+import { RegistrationsService } from 'src/registrations/registration.service';
 import { Repository } from 'typeorm';
 import { CreateOrderDto } from './create-order.dto';
 import { OrderDto } from './order.dto';
@@ -13,24 +15,42 @@ export class OrdersService {
     @InjectRepository(Order)
     private ordersRepository: Repository<Order>,
 
+    @InjectRepository(Registration)
+    private registrationsRepository: Repository<Registration>,
+
     private festivalsService: FestivalsService,
+
+    private registrationsService: RegistrationsService,
   ) {}
 
   orderModelToDto = async ({
-    user_id,
+    userId,
     content,
     ...rest
   }: Order): Promise<OrderDto> => {
     const festivals = await Promise.all(
       content.map(async (item) => {
-        const festival = await this.festivalsService.findOne(item.festival_id);
+        const festival = await this.festivalsService.findOne(item.festivalId);
 
         const festivalWorkshops =
-          await this.festivalsService.findWorkshopsByFestival(item.festival_id);
+          await this.festivalsService.findWorkshopsByFestival(item.festivalId);
 
-        const filteredWs = festivalWorkshops.filter((ws) =>
-          item.workshops.includes(ws.id),
-        );
+        const filteredWs = festivalWorkshops.filter((ws) => {
+          if (item.workshops) {
+            return item.workshops.includes(ws.id);
+          }
+        });
+
+        const festivalContestCats =
+          await this.festivalsService.findContestCatsByFestival(
+            item.festivalId,
+          );
+
+        const filteredContestCats = festivalContestCats.filter((category) => {
+          if (item.contest) {
+            return item.contest.includes(category.id);
+          }
+        });
 
         const teachers = await this.festivalsService.findTeachers();
         const teacher = (id) => teachers.find((teacher) => teacher.id === id);
@@ -39,12 +59,15 @@ export class OrdersService {
           workshopModelToDto(ws, teacher),
         );
 
-        const isFullPass = item.is_fullPass;
+        const isFullPass = item.isFullPass;
+        const isSoloPass = item.isSoloPass;
 
         return {
           festival,
           isFullPass,
+          isSoloPass,
           workshops: wsWithTeachers,
+          contest: filteredContestCats,
         };
       }),
     );
@@ -56,14 +79,15 @@ export class OrdersService {
     return this.ordersRepository.find();
   }
 
-  findOne(id: string): Promise<Order> {
+  findOne(id: number): Promise<Order> {
     return this.ordersRepository.findOne(id);
   }
 
-  findOneByUser(user_id: string): Promise<Order> {
+  findOneByUser(userId: number): Promise<Order> {
     return this.ordersRepository.findOne({
       where: {
-        user_id,
+        userId,
+        status: 'new',
       },
     });
   }
@@ -72,28 +96,54 @@ export class OrdersService {
     return await this.ordersRepository.save(order);
   }
 
-  async update({ id, ...rest }: Partial<Order>) {
-    return await this.ordersRepository.update(id, { ...rest });
-  }
-
   async remove(id: string): Promise<void> {
     await this.ordersRepository.delete(id);
   }
 
-  async register({ content, user_id }): Promise<Order> {
-    const isOrder = await this.findOneByUser(user_id);
+  async register({ contentPayload, userId }): Promise<Order> {
+    const isOrder = await this.findOneByUser(userId);
 
-    if (isOrder) {
+    if (isOrder && isOrder.status != 'paid') {
       const orderId = isOrder.id;
       const orderContent = isOrder.content.slice();
       const index = orderContent.findIndex(
-        (c) => c.festival_id === content.festival_id,
+        (c) => c.festivalId === contentPayload.festivalId,
       );
 
+      const newContent = () => {
+        const workshops = () => {
+          if (contentPayload.workshops && contentPayload.workshops.length > 0) {
+            return contentPayload.workshops;
+          }
+          if (index >= 0) {
+            return orderContent[index].workshops;
+          }
+          return [];
+        };
+
+        const contest = () => {
+          if (contentPayload.contest && contentPayload.contest.length > 0) {
+            return contentPayload.contest;
+          }
+          if (index >= 0) {
+            return orderContent[index].contest;
+          }
+          return [];
+        };
+
+        return {
+          workshops: workshops(),
+          contest: contest(),
+          isFullPass: contentPayload.isFullPass ? true : false,
+          isSoloPass: contentPayload.isSoloPass ? true : false,
+          festivalId: contentPayload.festivalId,
+        };
+      };
+
       if (index >= 0) {
-        orderContent.splice(index, 1, content);
+        orderContent.splice(index, 1, newContent());
       } else {
-        orderContent.push(content);
+        orderContent.push(newContent());
       }
 
       return await this.ordersRepository.save({
@@ -101,11 +151,72 @@ export class OrdersService {
         content: orderContent,
       });
     } else {
+      const newContent = () => {
+        const workshops =
+          contentPayload.workshops && contentPayload.workshops.length > 0
+            ? contentPayload.workshops
+            : [];
+
+        const contest =
+          contentPayload.contest && contentPayload.contest.length > 0
+            ? contentPayload.contest
+            : [];
+
+        return {
+          workshops,
+          contest,
+          isFullPass: contentPayload.isFullPass ? true : false,
+          isSoloPass: contentPayload.isSoloPass ? true : false,
+          festivalId: contentPayload.festivalId,
+        };
+      };
+
       return await this.ordersRepository.save({
-        content: [content],
+        content: [newContent()],
         status: 'new',
-        user_id: user_id,
+        userId,
       });
     }
+  }
+
+  async pay(order: Order): Promise<Order> {
+    await order.content.forEach((festival) => {
+      const isRegistration = () =>
+        this.registrationsService.findOneByFestival({
+          userId: order.userId,
+          festivalId: festival.festivalId,
+        });
+
+      isRegistration().then((res) => {
+        if (res) {
+          this.registrationsService.remove(res.id);
+        }
+        if (!festival.workshops) {
+          festival.workshops = [];
+        }
+        if (!festival.contest) {
+          festival.contest = [];
+        }
+        this.registrationsService.create({
+          isFullPass: festival.isFullPass,
+          isSoloPass: festival.isSoloPass,
+          workshops: festival.workshops,
+          contest: festival.contest,
+          status: 'paid',
+          festivalId: festival.festivalId,
+          userId: order.userId,
+        });
+      });
+    });
+
+    const paidTime = new Date().toISOString();
+
+    await this.ordersRepository.save({
+      id: order.id,
+      status: 'paid',
+      paidAt: paidTime,
+    });
+
+    return this.findOne(order.id);
   }
 }

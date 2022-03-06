@@ -51,13 +51,13 @@ export class AuthController {
       const newUser = new User();
       newUser.email = email;
       newUser.name = name;
-      newUser.birth_date = birthDate;
+      newUser.birthDate = birthDate;
       newUser.password = await this.authService.passwordHash(password);
 
       await this.usersService.create(newUser);
-      const userDto = this.usersService.userModelToDto(newUser);
+      const newUserDto = this.usersService.userModelToDto(newUser);
       delete this.usersService.incompleteSignUps[email];
-      return await this.authService.sign(userDto);
+      return await this.authService.sign(newUserDto);
     } else {
       throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
     }
@@ -84,17 +84,17 @@ export class AuthController {
   async reset(@Body() { email }: CodeRequestDto) {
     const user = await this.usersService.findOneByEmail(email);
     if (user) {
-      user.password_reset = this.usersService.generateCode();
+      user.passwordReset = this.usersService.generateCode();
     }
     await this.usersService.update(user);
-    console.log(user.password_reset);
+    console.log(user.passwordReset);
     return 'OK';
   }
 
   @Post('resetcheck')
   async resetcheck(@Body() { email, code }: ValidateCodeDto) {
     const user = await this.usersService.findOneByEmail(email);
-    if (user && user.password_reset === code) {
+    if (user && user.passwordReset === code) {
       return 'OK';
     } else {
       throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
@@ -104,9 +104,9 @@ export class AuthController {
   @Post('setpass')
   async setpass(@Body() req: CreateUserDto) {
     const user = await this.usersService.findOneByEmail(req.email);
-    if (user && user.password_reset === req.code) {
+    if (user && user.passwordReset === req.code) {
       user.password = await this.authService.passwordHash(req.password);
-      user.password_reset = '';
+      user.passwordReset = '';
 
       await this.usersService.update(user);
 

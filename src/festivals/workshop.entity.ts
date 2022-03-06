@@ -19,11 +19,11 @@ export class Workshop {
   @Column()
   price: number;
 
-  @Column()
-  festival_id: number;
+  @Column({ name: 'festival_id' })
+  festivalId: number;
 
-  @Column()
-  teacher_id: string;
+  @Column({ name: 'teacher_id' })
+  teacherId: string;
 
   @Column()
   limit: number;

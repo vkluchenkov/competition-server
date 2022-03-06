@@ -11,6 +11,7 @@ import { AuthModule } from './auth/auth.module';
 import { OrdersModule } from './orders/orders.module';
 import { Order } from './orders/order.entity';
 import { Registration } from './registrations/registration.entity';
+import { ContestCategories } from './festivals/contestCategories.entity';
 
 @Module({
   imports: [
@@ -22,7 +23,15 @@ import { Registration } from './registrations/registration.entity';
       password:
         'c66e5e9223890b64f9a2320499b9d3ece5273ad370c4f0110c461f214e9aa0db',
       database: 'dalq761g9g15v1',
-      entities: [Festival, User, Workshop, Teacher, Order, Registration],
+      entities: [
+        Festival,
+        User,
+        Workshop,
+        Teacher,
+        Order,
+        Registration,
+        ContestCategories,
+      ],
       synchronize: false,
       extra: {
         ssl: {

@@ -10,6 +10,6 @@ export class Teacher {
   @Column()
   name: string;
 
-  @Column()
-  sort_order: number;
+  @Column({ name: 'sort_order' })
+  sortOrder: number;
 }

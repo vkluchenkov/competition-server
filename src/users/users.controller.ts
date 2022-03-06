@@ -17,7 +17,7 @@ export class UsersController {
 
   @Get('data')
   async getProfile(@Request() req): Promise<UserDto> {
-    const user = await this.usersService.findOneById(req.user.id);
+    const user = await this.usersService.findOneById(req.user.userId);
     return this.usersService.userModelToDto(user);
   }
 }

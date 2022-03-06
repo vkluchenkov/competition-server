@@ -1,14 +1,17 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({
-  name: 'registration',
+  name: 'registrations',
 })
 export class Registration {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  is_fullPass: boolean;
+  @Column({ name: 'is_fullPass' })
+  isFullPass: boolean;
+
+  @Column({ name: 'is_soloPass' })
+  isSoloPass: boolean;
 
   @Column({
     type: 'jsonb',
@@ -16,14 +19,22 @@ export class Registration {
     default: () => "'[]'",
     nullable: false,
   })
-  workshops: Array<number>;
+  workshops: number[];
+
+  @Column({
+    type: 'jsonb',
+    array: true,
+    default: () => "'[]'",
+    nullable: false,
+  })
+  contest: number[];
 
   @Column()
   status: string;
 
-  @Column()
-  festival_id: number;
+  @Column({ name: 'festival_id' })
+  festivalId: number;
 
-  @Column()
-  user_id: number;
+  @Column({ name: 'user_id' })
+  userId: number;
 }

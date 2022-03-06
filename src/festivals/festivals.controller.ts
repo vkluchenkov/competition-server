@@ -11,12 +11,15 @@ import {
 } from '@nestjs/common';
 import { FestivalsService } from './festivals.service';
 import { Festival } from './festival.entity';
-import { RegisterFestivalDto } from './register-festival.dto';
+import { OrderFestivalDto } from './order-festival.dto';
 import { WorkshopDto } from './workshop.dto';
-import { workshopModelToDto } from './workshopModeleToDto';
+import { workshopModelToDto } from './workshopModelToDto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { OrdersService } from 'src/orders/orders.service';
-import { Order } from 'src/orders/order.entity';
+import { RegistrationsService } from 'src/registrations/registration.service';
+import { Registration } from 'src/registrations/registration.entity';
+import { ContestCategories } from 'src/festivals/contestCategories.entity';
+import { RegistrationDto } from 'src/registrations/registration.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('festivals')
@@ -24,6 +27,7 @@ export class FestivalsController {
   constructor(
     private festivalsService: FestivalsService,
     private ordersService: OrdersService,
+    private registrationsService: RegistrationsService,
   ) {}
 
   @Get()
@@ -31,13 +35,14 @@ export class FestivalsController {
     return this.festivalsService.findAll();
   }
 
-  @Get(':url_slug')
+  @Get(':urlSlug')
   async findOneByUrl(@Param() params): Promise<Festival> {
-    const festival = await this.festivalsService.findOneByUrl(params.url_slug);
+    const festival = await this.festivalsService.findOneByUrl(params.urlSlug);
 
     if (!festival) {
       throw new HttpException('Not found', HttpStatus.NOT_FOUND);
-    } else return festival;
+    }
+    return festival;
   }
 
   @Get(':id/data')
@@ -46,7 +51,8 @@ export class FestivalsController {
 
     if (!festival) {
       throw new HttpException('Not found', HttpStatus.NOT_FOUND);
-    } else return festival;
+    }
+    return festival;
   }
 
   @Get(':id/workshops')
@@ -60,22 +66,36 @@ export class FestivalsController {
     return workshops.map((ws) => workshopModelToDto(ws, teacher));
   }
 
-  @Post('register')
-  async register(
-    @Body() { workshops, isFullPass, festivalId }: RegisterFestivalDto,
-    @Req() req,
-  ) {
-    const registrationDtoToModel = {
-      content: {
-        workshops,
-        is_fullPass: isFullPass,
-        festival_id: festivalId,
-      },
-      user_id: req.user.id,
-    };
+  @Get(':id/contest')
+  async findContestCatsByFestival(
+    @Param() params,
+  ): Promise<ContestCategories[]> {
+    return await this.festivalsService.findContestCatsByFestival(params.id);
+  }
 
+  @Post('register')
+  async register(@Body() body: OrderFestivalDto, @Req() req) {
     return this.ordersService.orderModelToDto(
-      await this.ordersService.register(registrationDtoToModel),
+      await this.ordersService.register({
+        contentPayload: body,
+        userId: req.user.userId,
+      }),
     );
+  }
+
+  @Get(':id/registration')
+  async findOneByFestival(
+    @Param() params,
+    @Req() req,
+  ): Promise<RegistrationDto> {
+    const registration = await this.registrationsService.findOneByFestival({
+      userId: req.user.userId,
+      festivalId: params.id,
+    });
+
+    if (!registration) {
+      throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+    }
+    return this.registrationsService.registrationModelToDto(registration);
   }
 }

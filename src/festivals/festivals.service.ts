@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Festival } from './festival.entity';
 import { Workshop } from './workshop.entity';
 import { Teacher } from './teacher.entity';
+import { ContestCategories } from 'src/festivals/contestCategories.entity';
 
 @Injectable()
 export class FestivalsService {
@@ -16,6 +17,9 @@ export class FestivalsService {
 
     @InjectRepository(Teacher)
     private teachersRepository: Repository<Teacher>,
+
+    @InjectRepository(ContestCategories)
+    private contestCatsRepository: Repository<ContestCategories>,
   ) {}
 
   findAll(): Promise<Festival[]> {
@@ -26,10 +30,10 @@ export class FestivalsService {
     return this.festivalsRepository.findOne(id);
   }
 
-  findOneByUrl(url_slug: string): Promise<Festival> {
+  findOneByUrl(urlSlug: string): Promise<Festival> {
     return this.festivalsRepository.findOne({
       where: {
-        url_slug,
+        urlSlug,
       },
     });
   }
@@ -38,10 +42,18 @@ export class FestivalsService {
     return this.teachersRepository.find();
   }
 
-  findWorkshopsByFestival(festival_id: number): Promise<Workshop[]> {
+  findWorkshopsByFestival(festivalId: number): Promise<Workshop[]> {
     return this.workshopsRepository.find({
       where: {
-        festival_id,
+        festivalId,
+      },
+    });
+  }
+
+  findContestCatsByFestival(festivalId: number): Promise<ContestCategories[]> {
+    return this.contestCatsRepository.find({
+      where: {
+        festivalId,
       },
     });
   }

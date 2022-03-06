@@ -8,5 +8,5 @@ export class TeacherDto {
   name: string;
 
   @IsNumber()
-  sort_order: number;
+  sortOrder: number;
 }
