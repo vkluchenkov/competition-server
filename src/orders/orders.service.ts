@@ -101,6 +101,7 @@ export class OrdersService {
   }
 
   async register({ contentPayload, userId }): Promise<Order> {
+    console.log(contentPayload.isFullPass);
     const isOrder = await this.findOneByUser(userId);
 
     if (isOrder && isOrder.status != 'paid') {
@@ -131,10 +132,20 @@ export class OrdersService {
           return [];
         };
 
+        const isFullPass = () => {
+          if (orderContent[index].isFullPass === undefined) {
+            return false;
+          } else {
+            return contentPayload.isFullPass === undefined
+              ? orderContent[index].isFullPass
+              : contentPayload.isFullPass;
+          }
+        };
+
         return {
           workshops: workshops(),
           contest: contest(),
-          isFullPass: contentPayload.isFullPass ? true : false,
+          isFullPass: isFullPass(),
           isSoloPass: contentPayload.isSoloPass ? true : false,
           festivalId: contentPayload.festivalId,
         };
