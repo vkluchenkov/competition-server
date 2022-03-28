@@ -40,11 +40,11 @@ export class OrdersController {
 
   @Post('pay')
   async pay(@Body() body: PayOrderDto, @Req() req) {
-    const isOrder = await this.ordersService.findOneByUser(req.user.userId);
-    if (!isOrder) {
+    const order = await this.ordersService.findOneByUser(req.user.userId);
+    if (!order) {
       throw new HttpException('Not found', HttpStatus.NOT_FOUND);
     }
-    const payment = await this.ordersService.pay(isOrder);
+    const payment = await this.ordersService.pay(order);
 
     return this.ordersService.orderModelToDto(payment);
   }

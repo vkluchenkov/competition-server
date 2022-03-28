@@ -6,6 +6,8 @@ import { Registration } from 'src/registrations/registration.entity';
 import { RegistrationsService } from 'src/registrations/registration.service';
 import { Repository } from 'typeorm';
 import { CreateOrderDto } from './create-order.dto';
+import { getContestDiff } from './helpers/utils/getContestDiff';
+import { getWorshopsDiff } from './helpers/utils/getWorkshopsDiff';
 import { OrderDto } from './order.dto';
 import { Order } from './order.entity';
 
@@ -59,13 +61,10 @@ export class OrdersService {
           workshopModelToDto(ws, teacher),
         );
 
-        const isFullPass = item.isFullPass;
-        const isSoloPass = item.isSoloPass;
-
         return {
           festival,
-          isFullPass,
-          isSoloPass,
+          isFullPass: item.isFullPass,
+          isSoloPass: item.isSoloPass,
           workshops: wsWithTeachers,
           contest: filteredContestCats,
         };
@@ -100,38 +99,37 @@ export class OrdersService {
     await this.ordersRepository.delete(id);
   }
 
+  // -----------------------------------------
   async register({ contentPayload, userId }): Promise<Order> {
-    console.log(contentPayload.isFullPass);
-    const isOrder = await this.findOneByUser(userId);
+    const order = await this.findOneByUser(userId);
 
-    if (isOrder && isOrder.status != 'paid') {
-      const orderId = isOrder.id;
-      const orderContent = isOrder.content.slice();
+    const registration = await this.registrationsService.findOneByFestival({
+      userId,
+      festivalId: contentPayload.festivalId,
+    });
+
+    const workshops = getWorshopsDiff({
+      order,
+      contentPayload,
+      registration,
+    });
+
+    const contest = getContestDiff({
+      order,
+      contentPayload,
+      registration,
+    });
+
+    // if active order
+    if (order && order.status != 'paid') {
+      const orderId = order.id;
+      const orderContent = order.content.slice();
       const index = orderContent.findIndex(
         (c) => c.festivalId === contentPayload.festivalId,
       );
 
+      // Build payload
       const newContent = () => {
-        const workshops = () => {
-          if (contentPayload.workshops && contentPayload.workshops.length > 0) {
-            return contentPayload.workshops;
-          }
-          if (index >= 0) {
-            return orderContent[index].workshops;
-          }
-          return [];
-        };
-
-        const contest = () => {
-          if (contentPayload.contest && contentPayload.contest.length > 0) {
-            return contentPayload.contest;
-          }
-          if (index >= 0) {
-            return orderContent[index].contest;
-          }
-          return [];
-        };
-
         const isFullPass = () => {
           if (orderContent[index].isFullPass === undefined) {
             return false;
@@ -143,14 +141,15 @@ export class OrdersService {
         };
 
         return {
-          workshops: workshops(),
-          contest: contest(),
+          workshops,
+          contest,
           isFullPass: isFullPass(),
           isSoloPass: contentPayload.isSoloPass ? true : false,
           festivalId: contentPayload.festivalId,
         };
       };
 
+      // Payload actions
       if (index >= 0) {
         orderContent.splice(index, 1, newContent());
       } else {
@@ -161,34 +160,32 @@ export class OrdersService {
         id: orderId,
         content: orderContent,
       });
-    } else {
-      const newContent = () => {
-        const workshops =
-          contentPayload.workshops && contentPayload.workshops.length > 0
-            ? contentPayload.workshops
-            : [];
+    }
 
-        const contest =
-          contentPayload.contest && contentPayload.contest.length > 0
-            ? contentPayload.contest
-            : [];
-
-        return {
-          workshops,
-          contest,
-          isFullPass: contentPayload.isFullPass ? true : false,
-          isSoloPass: contentPayload.isSoloPass ? true : false,
-          festivalId: contentPayload.festivalId,
-        };
+    // if no active order
+    else {
+      // Build Payload
+      const newContent = {
+        workshops,
+        contest,
+        isFullPass:
+          contentPayload.isFullPass === undefined
+            ? false
+            : contentPayload.isFullPass,
+        isSoloPass: contentPayload.isSoloPass ? true : false,
+        festivalId: contentPayload.festivalId,
       };
 
+      // Payload actions
       return await this.ordersRepository.save({
-        content: [newContent()],
+        content: [newContent],
         status: 'new',
         userId,
       });
     }
   }
+
+  // ----------------------------------------------
 
   async pay(order: Order): Promise<Order> {
     await order.content.forEach((festival) => {
