@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FestivalsService } from 'src/festivals/festivals.service';
+import { OrderUnregisterFestivalDto } from 'src/festivals/order-unregister-festival.dto';
 import { workshopModelToDto } from 'src/festivals/workshopModelToDto';
 import { Registration } from 'src/registrations/registration.entity';
 import { RegistrationsService } from 'src/registrations/registration.service';
@@ -8,6 +9,7 @@ import { Repository } from 'typeorm';
 import { CreateOrderDto } from './create-order.dto';
 import { getContestDiff } from './helpers/utils/getContestDiff';
 import { getWorshopsDiff } from './helpers/utils/getWorkshopsDiff';
+import { OrderRegisterDto } from './order-register-dto';
 import { OrderDto } from './order.dto';
 import { Order } from './order.entity';
 
@@ -95,12 +97,30 @@ export class OrdersService {
     return await this.ordersRepository.save(order);
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: number): Promise<void> {
     await this.ordersRepository.delete(id);
   }
 
+  async removeFestival({ orderId, orderContent, index, festivalId }) {
+    if (orderContent.length === 1) {
+      await this.ordersRepository.save({
+        id: orderId,
+        status: 'cancelled',
+      });
+    } else {
+      orderContent.splice(index, 1);
+      await this.ordersRepository.save({
+        id: orderId,
+        content: orderContent,
+      });
+    }
+  }
+
   // -----------------------------------------
-  async register({ contentPayload, userId }): Promise<Order> {
+  async register({
+    contentPayload,
+    userId,
+  }: OrderRegisterDto): Promise<Order> | null {
     const order = await this.findOneByUser(userId);
 
     const registration = await this.registrationsService.findOneByFestival({
@@ -121,7 +141,7 @@ export class OrdersService {
     });
 
     // if active order
-    if (order && order.status != 'paid') {
+    if (order && order.status === 'new') {
       const orderId = order.id;
       const orderContent = order.content.slice();
       const index = orderContent.findIndex(
@@ -150,16 +170,32 @@ export class OrdersService {
       };
 
       // Payload actions
-      if (index >= 0) {
-        orderContent.splice(index, 1, newContent());
+      // if payload empty and festival is in active order, unregister festival
+      if (
+        !newContent().contest.length &&
+        !newContent().workshops.length &&
+        !newContent().isFullPass &&
+        !newContent().isSoloPass &&
+        index >= 0
+      ) {
+        await this.removeFestival({
+          orderId: order.id,
+          festivalId: contentPayload.festivalId,
+          index,
+          orderContent,
+        });
+        return null;
       } else {
-        orderContent.push(newContent());
-      }
+        // if festival is in active order replace, otherwise push
+        index >= 0
+          ? orderContent.splice(index, 1, newContent())
+          : orderContent.push(newContent());
 
-      return await this.ordersRepository.save({
-        id: orderId,
-        content: orderContent,
-      });
+        return await this.ordersRepository.save({
+          id: orderId,
+          content: orderContent,
+        });
+      }
     }
 
     // if no active order

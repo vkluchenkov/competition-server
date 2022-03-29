@@ -5,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Req,
   UseGuards,
@@ -19,6 +20,8 @@ import { OrdersService } from 'src/orders/orders.service';
 import { RegistrationsService } from 'src/registrations/registration.service';
 import { ContestCategories } from 'src/festivals/contestCategories.entity';
 import { RegistrationDto } from 'src/registrations/registration.dto';
+import { request } from 'http';
+import { OrderUnregisterFestivalDto } from './order-unregister-festival.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('festivals')
@@ -74,12 +77,12 @@ export class FestivalsController {
 
   @Post('register')
   async register(@Body() body: OrderFestivalDto, @Req() req) {
-    return this.ordersService.orderModelToDto(
-      await this.ordersService.register({
-        contentPayload: body,
-        userId: req.user.userId,
-      }),
-    );
+    const newOrder = await this.ordersService.register({
+      contentPayload: body,
+      userId: req.user.userId,
+    });
+    if (newOrder) return this.ordersService.orderModelToDto(newOrder);
+    return 'Order deleted';
   }
 
   @Get(':id/registration')
@@ -97,4 +100,18 @@ export class FestivalsController {
     }
     return this.registrationsService.registrationModelToDto(registration);
   }
+
+  // @Post('unregister')
+  // async delete(@Body() body: OrderUnregisterFestivalDto, @Req() req) {
+  //   const order = await this.ordersService.findOneByUser(req.user.userId);
+
+  //   if (!order) {
+  //     throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+  //   }
+  //   await this.ordersService.removeFestival({
+  //     festivalId: body.festivalId,
+  //     userId: req.user.userId,
+  //   });
+  //   return 'Festival deleted';
+  // }
 }

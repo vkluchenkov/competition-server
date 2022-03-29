@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Req,
   UseGuards,
@@ -21,21 +23,21 @@ export class OrdersController {
 
   @Get(':id')
   async findOne(@Param() params) {
-    const isOrder = await this.ordersService.findOne(params.id);
+    const order = await this.ordersService.findOne(params.id);
 
-    if (!isOrder) {
+    if (!order) {
       throw new HttpException('Not found', HttpStatus.NOT_FOUND);
     }
-    return await this.ordersService.orderModelToDto(isOrder);
+    return await this.ordersService.orderModelToDto(order);
   }
 
   @Get()
   async findOneByUser(@Req() req): Promise<OrderDto> {
-    const isOrder = await this.ordersService.findOneByUser(req.user.userId);
-    if (!isOrder || isOrder.status === 'paid') {
+    const order = await this.ordersService.findOneByUser(req.user.userId);
+    if (!order || order.status === 'paid') {
       throw new HttpException('Not found', HttpStatus.NOT_FOUND);
     }
-    return this.ordersService.orderModelToDto(isOrder);
+    return this.ordersService.orderModelToDto(order);
   }
 
   @Post('pay')
