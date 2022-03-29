@@ -17,7 +17,6 @@ import { workshopModelToDto } from './workshopModelToDto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { OrdersService } from 'src/orders/orders.service';
 import { RegistrationsService } from 'src/registrations/registration.service';
-import { Registration } from 'src/registrations/registration.entity';
 import { ContestCategories } from 'src/festivals/contestCategories.entity';
 import { RegistrationDto } from 'src/registrations/registration.dto';
 

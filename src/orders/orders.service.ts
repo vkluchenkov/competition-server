@@ -109,15 +109,15 @@ export class OrdersService {
     });
 
     const workshops = getWorshopsDiff({
-      order,
+      order: order ? order : null,
       contentPayload,
-      registration,
+      registration: registration ? registration : null,
     });
 
     const contest = getContestDiff({
-      order,
+      order: order ? order : null,
       contentPayload,
-      registration,
+      registration: registration ? registration : null,
     });
 
     // if active order
@@ -188,41 +188,88 @@ export class OrdersService {
   // ----------------------------------------------
 
   async pay(order: Order): Promise<Order> {
-    await order.content.forEach((festival) => {
-      const isRegistration = () =>
-        this.registrationsService.findOneByFestival({
+    await order.content.forEach(async (festival) => {
+      const getRegistration = async () =>
+        await this.registrationsService.findOneByFestival({
           userId: order.userId,
           festivalId: festival.festivalId,
         });
 
-      isRegistration().then((res) => {
-        if (res) {
-          this.registrationsService.remove(res.id);
+      const registration = await getRegistration();
+
+      const regWorkshops = () => {
+        if (
+          registration &&
+          registration.workshops.length &&
+          festival.workshops.length
+        ) {
+          const filtered = festival.workshops.filter(
+            (festivalWorkshop) =>
+              !registration.workshops.includes(festivalWorkshop),
+          );
+          return [...registration.workshops, ...filtered];
         }
-        if (!festival.workshops) {
-          festival.workshops = [];
+        if (
+          (!registration || !registration.workshops.length) &&
+          festival.workshops.length
+        )
+          return festival.workshops;
+        if (
+          registration &&
+          registration.workshops.length &&
+          !festival.workshops.length
+        )
+          return registration.workshops;
+        else return [];
+      };
+
+      const regContest = () => {
+        if (
+          registration &&
+          registration.contest.length &&
+          festival.contest.length
+        ) {
+          const filtered = festival.contest.filter(
+            (festivalContestCat) =>
+              !registration.contest.includes(festivalContestCat),
+          );
+          return [...registration.contest, ...filtered];
         }
-        if (!festival.contest) {
-          festival.contest = [];
-        }
-        this.registrationsService.create({
-          isFullPass: festival.isFullPass,
-          isSoloPass: festival.isSoloPass,
-          workshops: festival.workshops,
-          contest: festival.contest,
-          status: 'paid',
-          festivalId: festival.festivalId,
-          userId: order.userId,
-        });
+        if (
+          (!registration || !registration.contest.length) &&
+          festival.contest.length
+        )
+          return festival.contest;
+        if (
+          registration &&
+          registration.contest.length &&
+          !festival.contest.length
+        )
+          return registration.contest;
+        else return [];
+      };
+
+      if (registration) {
+        this.registrationsService.remove(registration.id);
+      }
+
+      this.registrationsService.create({
+        isFullPass: festival.isFullPass,
+        isSoloPass: festival.isSoloPass,
+        workshops: regWorkshops(),
+        contest: regContest(),
+        status: 'paid',
+        festivalId: festival.festivalId,
+        userId: order.userId,
       });
     });
 
-    const paidTime = new Date().toISOString();
+    const paidAt = new Date().toISOString();
 
     await this.ordersRepository.save({
       id: order.id,
       status: 'paid',
-      paidAt: paidTime,
+      paidAt: paidAt,
     });
 
     return this.findOne(order.id);

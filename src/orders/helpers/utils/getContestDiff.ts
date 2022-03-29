@@ -13,20 +13,20 @@ export const getContestDiff = ({
   contentPayload,
   registration,
 }: GetDiffProps): number[] => {
-  const regArr = registration.contest;
   const payloadArr = contentPayload.contest;
+  const regArr = registration ? registration.contest : [];
 
   const regDiff = () => {
     if (registration) {
       // Data present in both Reg and Payload
-      if (regArr.length > 0 && !!payloadArr.length) {
+      if (regArr.length && payloadArr.length) {
         // Return only new items (diff between Payload and Reg)
-        return payloadArr.filter((payloadItem) =>
-          regArr.some((regItem) => payloadItem != regItem),
+        return payloadArr.filter(
+          (payloadItem) => !regArr.includes(payloadItem),
         );
       }
       // No data in Reg, but there is in Payload
-      if (regArr.length === 0 && !!payloadArr.length) {
+      if (!regArr.length && payloadArr.length) {
         // return Payload items
         return payloadArr;
       }
@@ -46,7 +46,7 @@ export const getContestDiff = ({
     // 1.1 and no Reg
     if (!registration) {
       // return Payload items, if present
-      if (payloadArr && payloadArr.length > 0) {
+      if (payloadArr && payloadArr.length) {
         return payloadArr;
       }
       // return order items, if present
@@ -60,7 +60,7 @@ export const getContestDiff = ({
     else {
       // If no items in Reg and Payload
       // return order items
-      if (regArr.length === 0 && payloadArr.length === 0 && index >= 0) {
+      if (!regArr.length && !payloadArr.length && index >= 0) {
         return orderArr;
       }
       // else compare Reg and Payload
@@ -72,6 +72,6 @@ export const getContestDiff = ({
     // 2.1 If Reg, compare Reg and Payload
     if (registration) return regDiff();
     // 2.2 If no Reg
-    return payloadArr && payloadArr.length > 0 ? payloadArr : [];
+    return payloadArr && payloadArr.length ? payloadArr : [];
   }
 };
