@@ -82,7 +82,7 @@ export class FestivalsController {
       userId: req.user.userId,
     });
     if (newOrder) return this.ordersService.orderModelToDto(newOrder);
-    return 'Order deleted';
+    return 'Order cancelled or not created due to no changes from current state';
   }
 
   @Get(':id/registration')
@@ -100,18 +100,4 @@ export class FestivalsController {
     }
     return this.registrationsService.registrationModelToDto(registration);
   }
-
-  // @Post('unregister')
-  // async delete(@Body() body: OrderUnregisterFestivalDto, @Req() req) {
-  //   const order = await this.ordersService.findOneByUser(req.user.userId);
-
-  //   if (!order) {
-  //     throw new HttpException('Not found', HttpStatus.NOT_FOUND);
-  //   }
-  //   await this.ordersService.removeFestival({
-  //     festivalId: body.festivalId,
-  //     userId: req.user.userId,
-  //   });
-  //   return 'Festival deleted';
-  // }
 }

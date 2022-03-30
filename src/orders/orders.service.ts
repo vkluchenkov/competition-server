@@ -211,6 +211,14 @@ export class OrdersService {
         isSoloPass: contentPayload.isSoloPass ? true : false,
         festivalId: contentPayload.festivalId,
       };
+      console.log(newContent);
+      if (
+        !newContent.contest.length &&
+        !newContent.workshops.length &&
+        !newContent.isFullPass &&
+        !newContent.isSoloPass
+      )
+        return null;
 
       // Payload actions
       return await this.ordersRepository.save({
