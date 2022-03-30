@@ -211,7 +211,6 @@ export class OrdersService {
         isSoloPass: contentPayload.isSoloPass ? true : false,
         festivalId: contentPayload.festivalId,
       };
-      console.log(newContent);
       if (
         !newContent.contest.length &&
         !newContent.workshops.length &&
