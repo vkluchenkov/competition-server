@@ -191,7 +191,7 @@ export class OrdersService {
           ? orderContent.splice(index, 1, newContent())
           : orderContent.push(newContent());
 
-        return await this.ordersRepository.save({
+        await this.ordersRepository.save({
           id: orderId,
           content: orderContent,
         });
@@ -220,7 +220,7 @@ export class OrdersService {
         return null;
 
       // Payload actions
-      return await this.ordersRepository.save({
+      await this.ordersRepository.save({
         content: [newContent],
         status: 'new',
         userId,

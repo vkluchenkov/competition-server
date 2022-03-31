@@ -77,12 +77,13 @@ export class FestivalsController {
 
   @Post('register')
   async register(@Body() body: OrderFestivalDto, @Req() req) {
-    const newOrder = await this.ordersService.register({
+    await this.ordersService.register({
       contentPayload: body,
       userId: req.user.userId,
     });
-    if (newOrder) return this.ordersService.orderModelToDto(newOrder);
-    return 'Order cancelled or not created due to no changes from current state';
+
+    const isOrder = this.ordersService.findOneByUser(req.user.userId);
+    return (await isOrder) ? { isActiveOrder: true } : { isActiveOrder: false };
   }
 
   @Get(':id/registration')
